@@ -27,7 +27,8 @@ const App = () =>
   const [formDataSearch, setformDataSearch] = useState("");
   const accountRef = useRef(null);
   const lastRef = useRef(null);
-
+  
+  const [isAddModalOpen, setISAddModalOpen] = useState(false);
  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
  //const [popup, setPopup] = useState(false);
  const defaultColDef = useMemo(() => ({
@@ -44,9 +45,16 @@ function handleChangeupdat(event)
 function handleChangeSearch(event)
 {  
       const { name, value } = event.target;
-       setformDataSearch((formDataSearch) => ({ ...formDataSearch, [name]: value }));
+      setformDataupdate((formDataupdate) => ({ ...formDataupdate, [name]: value }));
 
 }
+function handleChangeAdd(event)
+{  
+      const { name, value } = event.target;
+      setformDataSearch((formDataupdate) => ({ ...formDataSearch, [name]: value }));
+
+}
+
 
 function handleSubmitUpdate()
 {
@@ -62,13 +70,17 @@ function handleCloseUpdate()
 
 function editPatient(params)
 {
-  formDataupdate.Account_num=params.data.name;
-  formDataupdate.Last_name=params.data.email;
 
-  formDataupdate.First_name=params.data.phone;
+  formDataupdate.id=    params.data.profileid;
+
+  formDataupdate.name=params.data.name;
+  formDataupdate.email=params.data.email;
+
+  formDataupdate.phone=params.data.phone;
  
   formDataupdate.Address=params.data.address;
-  formDataupdate.City=params.data.Portfolio_url;
+  
+  formDataupdate.portfolio_url=params.data.portfolio_url;
 
   // formDataupdate.State=params.data.state;
   // formDataupdate.ZipCode=params.data.zipcode;
@@ -94,25 +106,85 @@ function editPatient(params)
   // formDataupdate.comment=params.data.comment;
   
   setIsUpdateModalOpen(true);
+  setISAddModalOpen(false);
+}
+function addPatient()
+{
+  setISAddModalOpen(true);
+ 
 }
 
+ async function addProfile()
+{
+  
+  if (!formDataSearch.name) {
+    alert('Profile Name can not be empty')
+    return
+  }
+  if (!formDataSearch.email) {
+    alert('Profile email can not be empty')
+    return
+  }
+  if (!formDataSearch.phone) {
+    alert('Profile phone can not be empty')
+    return
+  }
+  if (!formDataSearch.address) {
+    alert('Profile address can not be empty')
+    return
+  }
+  if (!formDataSearch.url) {
+    alert('Profile url can not be empty')
+    return
+  }
+  if (!formDataSearch.image) {
+    alert('Profile image can not be empty')
+    return
+  }
+  try {
+    const response =  await fetch("api/Clinic/saveProfile", {
+     method:"POST",
+     headers:{'content-type': 'application/json'},
+    body : JSON.stringify({
+      name: formDataSearch.name,
+      email: formDataSearch.email,
+      phone: formDataSearch.phone,
+      address: formDataSearch.address,
+      portfolio_url: formDataSearch.url,
+      profile_image: formDataSearch.image
+    })});
+
+    const responseText = await response.text();
+  //  alert(responseText)
+    const data = JSON.parse(responseText);
+   
+
+  if (data.code === "200") {
+      alert("Profile Saved successfully")
+     // setFormDataDiag("")
+
+   // setName("");
+  //  setEmail("");
+   // setMessage("User created successfully");
+  } 
+  else {
+    alert("Profile Saved successfully")
+  }
+} catch (err) {
+  console.log(err);
+
+ }
+
+}
 async  function  submitUpdate(e)
  {
       e.preventDefault();
 
-      if (!formDataupdate.Last_name) {
+      if (!formDataupdate.name) {
         alert('Last Name can not be empty')
         return
       }
-      if (!formDataupdate.First_name) {
-        alert('First Name can not be empty')
-        return
-      }
-
-      if (!formDataupdate.DOB) {
-        alert('DOB not be empty')
-        return
-      }
+      
 
 
       //alert(`Name: ${formData.Account_num}, Email: ${formData.email}, Message: ${formData.message}`
@@ -124,7 +196,7 @@ async  function  submitUpdate(e)
             method:"POST",
             headers:{'content-type': 'application/json'},
            body : JSON.stringify({
-            PATIENTID: formDataupdate.patientID,
+            PATIENTID: formDataupdate.id,
             account_num: formDataupdate.Account_num,
             LAST_NAME: formDataupdate.Last_name,
             FIRST_NAME: formDataupdate.First_name,
@@ -159,13 +231,14 @@ async  function  submitUpdate(e)
        
     
       if (data.code === "1") {
-          alert(data.mesaage)
+         
+          alert("Profile Updated successfully")
        // setName("");
       //  setEmail("");
        // setMessage("User created successfully");
       } 
       else {
-          alert(data.mesaage)
+        alert("Profile Updated successfully")
       }
       } 
       catch (err) {
@@ -219,32 +292,180 @@ function fillgrid(event)
   //  { headerName:  'First Name',  field:'firsT_NAME',sortable: true,unSortIcon: true  },
    { headerName:  'Phone',  field: 'phone' ,sortable: false},
    { headerName: 'Address',field: 'address',sortable: false} ,
-   { headerName: 'portfolio_url' ,field: 'portfolio_url' }
+   { headerName: 'Portfolio URL' ,field: 'portfolio_url' }
   
 
 
  ]);
   
+ async function  formSubmitted()
+ {
 
 
+  
+  if (!formDataSearch.name) {
+    alert("Profile Name can't be empty")
+    return
+  }
+ 
+
+  try {
+    const response =  await fetch("api/Clinic/saveProfile", {
+     method:"POST",
+     headers:{'content-type': 'application/json'},
+    body : JSON.stringify({
+      name: formDataSearch.name,
+      email: formDataSearch.email,
+      phone: formDataSearch.phone,
+      address: formDataSearch.address,
+      portfolio_url: formDataSearch.portfolio_url,
+      profile_image: formDataSearch.profile_image
+    })});
+
+    const responseText = await response.text();
+    // ..alert(responseText)
+    const data = JSON.parse(responseText);
+   
+
+  if (data.code === "200") {
+      // alert(data.mesaage)
+     // setFormDataDiag("")
+
+   // setName("");
+  //  setEmail("");
+   // setMessage("User created successfully");
+  } 
+  else {
+      // alert(data.mesaage)
+  }
+} catch (err) {
+  console.log(err);
+
+ }
+}
+async function  updateForm()
+ {
+
+  
+ // alert(formDataupdate.id)
+  if (!formDataupdate.name) {
+    alert("Profile Name can't be empty")
+    return
+  }
+ 
+
+  try {
+    const response =  await fetch("api/Clinic/updateProfile", {
+     method:"POST",
+     headers:{'content-type': 'application/json'},
+    body : JSON.stringify({
+      ProfileID: formDataupdate.id,
+      name: formDataupdate.name,
+      email: formDataupdate.email,
+      phone: formDataupdate.phone,
+      Address: formDataupdate.Address,
+      Portfolio_url: formDataupdate.portfolio_url,
+      profile_image: formDataupdate.image
+    })});
+
+    const responseText = await response.text();
+    alert(responseText)
+    const data = JSON.parse(responseText);
+   
+
+  if (data.code === "200") {
+      //alert(data.mesaage)
+     // setFormDataDiag("")
+
+   // setName("");
+  //  setEmail("");
+   // setMessage("User created successfully");
+  } 
+  else {
+   //  alert(data.mesaage)
+  }
+} catch (err) {
+  console.log(err);
+
+ }
+}
  // Container: Defines the grid's theme & dimensions.
  return (
+
 <>
-
-
-
- 
   
   {/* // edit patient form */}
 
-  { isUpdateModalOpen? 
+  { 
+  isUpdateModalOpen? 
   <> 
-  <PatientTab></PatientTab>
-    </> :     <Layout>  <div class="col-md-6" style={{height: '500px',width: '1000px'}} >
+      
+        <div class="col-md-6" style={{height: '500px',width: '1000px'}} >
+  <div class="Table">
+   
+   <div class="Row" styles="colspan:3" >
+   
+ </div>
+ </div>
+</div>
+ <h2>Update  Profile</h2>
+ <div class="Table">
+       
+       <div class="Row">
+           <div class="col-2"> 
+              <lable>Profile Name</lable>
+               <input type="text" name="name" id="name"    className="date-type"   placeholder=""  value={formDataupdate.name}  onChange={handleChangeSearch}  />
+             
+           </div>
+           <div class="col-2"> 
+              <lable>Email</lable>
+               <input type="text" name="email"  className="date-type"    placeholder=""  value={formDataupdate.email}  onChange={handleChangeSearch}  />
+             
+           </div>
+           </div>
+           <div class="Row">
+           <div class="col-2"> 
+              <lable>Phone</lable>
+               <input type="text" name="phone"  className="date-type"   placeholder=""  value={formDataupdate.phone}  onChange={handleChangeSearch}  />
+             
+           </div>
+          
+           <div class="col-2"> 
+              <lable>address</lable>
+               <input type="text" name="Address"  className="date-type"   placeholder="" value={formDataupdate.Address}  onChange={handleChangeSearch}  />
+             
+           </div>
+           </div>
+           <div class="Row">
+           <div class="col-2"> 
+              <lable>Profile URL</lable>
+               <input type="text" name="portfolio_url"  className="date-type"   placeholder=""  value={formDataupdate.portfolio_url}  onChange={handleChangeSearch}  />
+             
+           </div>
+          
+           <div class="col-2"> 
+              <lable>Portfile image</lable>
+               <input type="text" name="image"  className="date-type"   placeholder="" value={formDataupdate.image}  onChange={handleChangeSearch}  />
+             
+           </div>
+           </div>
+  
+      
+      <div class="Row" style={{overflow: "visible"}}>
+      <div class="col-2" styles="text-align:right;"/>
+            <div class="col-2" styles="text-align:right;">
+            <input type="button"  onClick ={updateForm} className="btnSave" value="Save"   />    
+         </div>
+    </div>
+
+      </div>
+    </> :  
+    
+    <Layout>  <div class="col-md-6" style={{height: '500px',width: '1000px'}} >
   <form  onSubmit={fillgrid}  >
     <div class="Table">
        
-       <div class="Row">
+       {/* <div class="Row">
            <div class="col-4"> 
               <lable>Accont #</lable>
                <input type="text" name="accountNum2" id="accountNum2"    className="date-type"   placeholder=""  value={formDataSearch.accountNum2}  onChange={handleChangeSearch}  />
@@ -290,11 +511,12 @@ function fillgrid(event)
            </div>
       
     
-      </div>
+      </div> */}
       <div class="Row" style={{overflow: "visible"}}>
       <div class="col-2" styles="text-align:right;"/>
             <div class="col-2" styles="text-align:right;">
-            <input type="button"  onClick={fillgrid} className="btnSave" value="Search"   />    
+            <input type="button"  onClick={fillgrid} className="btnSave" value="Search"   />   
+            <input type="button"  onClick={addPatient} className="btnSave" value="Add Profile"   />   
          </div>
     </div>
 
@@ -305,8 +527,76 @@ function fillgrid(event)
   <div  className={"ag-theme-alpine" }  style={{height: '500px',width: '1000px'}}>
      <AgGridReact rowData={rowData} columnDefs={colDefs} pagination={true} defaultColDef={defaultColDef} paginationPageSizeSelector={[100, 500, 1000]} />
    </div>
-   </div>    </Layout>}
+   </div>    </Layout>
+ }
+   {/* // add form */}
 
+   {
+   isAddModalOpen? 
+  <> 
+  
+  <div class="Table">
+   
+   <div class="Row" styles="colspan:3" >
+   
+ </div>
+ </div>
+ <h2>Add  Profile</h2>
+ <div class="Table">
+       
+       <div class="Row">
+           <div class="col-2"> 
+              <lable>Profile Name</lable>
+               <input type="text" name="name" id="name"    className="date-type"   placeholder=""  value={formDataSearch.name}  onChange={handleChangeAdd}  />
+             
+           </div>
+           <div class="col-2"> 
+              <lable>Email</lable>
+               <input type="text" name="email"  className="date-type"    placeholder=""  value={formDataSearch.email}  onChange={handleChangeAdd}  />
+             
+           </div>
+           </div>
+           <div class="Row">
+           <div class="col-2"> 
+              <lable>Phone</lable>
+               <input type="text" name="phone"  className="date-type"   placeholder=""  value={formDataSearch.phone}  onChange={handleChangeAdd}  />
+             
+           </div>
+          
+           <div class="col-2"> 
+              <lable>address</lable>
+               <input type="text" name="address"  className="date-type"   placeholder="" value={formDataSearch.address}  onChange={handleChangeAdd}  />
+             
+           </div>
+           </div>
+           <div class="Row">
+           <div class="col-2"> 
+              <lable>Profile URL</lable>
+               <input type="text" name="url"  className="date-type"   placeholder=""  value={formDataSearch.url}  onChange={handleChangeAdd}  />
+             
+           </div>
+          
+           <div class="col-2"> 
+              <lable>Portfile image</lable>
+               <input type="text" name="image"  className="date-type"   placeholder="" value={formDataSearch.image}  onChange={handleChangeAdd}  />
+             
+           </div>
+           </div>
+  
+      
+      <div class="Row" style={{overflow: "visible"}}>
+      <div class="col-2" styles="text-align:right;"/>
+            <div class="col-2" styles="text-align:right;">
+            <input type="button"  onClick ={addProfile} className="btnSave" value="Save"   />    
+         </div>
+    </div>
+
+      </div>
+    </> :  ""
+   
+  }
+   
+  
       </>
 
 
